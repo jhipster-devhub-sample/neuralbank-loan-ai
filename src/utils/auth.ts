@@ -23,3 +23,12 @@ export const getAuthHeaders = (): HeadersInit => {
     'Content-Type': 'application/json',
   };
 };
+
+export const isAuthenticated = (): boolean => {
+  return getJwtFromCookie() !== null;
+};
+
+export const logout = (): void => {
+  document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+  window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/logout`;
+};

@@ -1,8 +1,26 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { isAuthenticated, logout } from '@/utils/auth';
 
 const Index = () => {
+  const navigate = useNavigate();
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setAuthenticated(isAuthenticated());
+  }, []);
+
   const handleLogin = () => {
-    window.location.href = '/auth/callback';
+    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/callback`;
+  };
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  const handleViewCustomers = () => {
+    navigate('/customers');
   };
 
   return (
@@ -17,9 +35,23 @@ const Index = () => {
           </h1>
         </div>
         <p className="text-xl text-muted-foreground mb-8">Financial Risk Evaluation AI Application Demo</p>
-        <Button onClick={handleLogin} size="lg" className="text-lg px-8">
-          Ingresar
-        </Button>
+        
+        {authenticated ? (
+          <div className="space-y-4">
+            <Button onClick={handleViewCustomers} size="lg" className="text-lg px-8">
+              Ver Clientes
+            </Button>
+            <div>
+              <Button onClick={handleLogout} variant="outline" size="lg" className="text-lg px-8">
+                Cerrar Sesión
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <Button onClick={handleLogin} size="lg" className="text-lg px-8">
+            Ingresar
+          </Button>
+        )}
       </div>
     </div>
   );

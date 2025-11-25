@@ -62,7 +62,7 @@ const CustomerList = () => {
   };
 
   const handleLogin = () => {
-    window.location.href = '/auth/callback';
+    window.location.href = `${API_BASE_URL}/auth/callback`;
   };
 
   return (
