@@ -56,14 +56,50 @@ export const getAuthorizationUrl = (state?: string): string => {
   return authUrl;
 };
 
+// Function to get post-logout redirect URI
+const getPostLogoutRedirectURI = (): string => {
+  // Check if there's a configured post-logout redirect URI
+  const envPostLogoutURI = getEnvVar('VITE_KEYCLOAK_POST_LOGOUT_REDIRECT_URI');
+  if (envPostLogoutURI && envPostLogoutURI.trim() !== '') {
+    return envPostLogoutURI.trim();
+  }
+  
+  // Default to current origin, but force http:// for localhost
+  if (typeof window !== 'undefined') {
+    const origin = window.location.origin;
+    // If it's localhost, force http://
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      const protocol = 'http:';
+      const host = window.location.host;
+      return `${protocol}//${host}`;
+    }
+    return origin;
+  }
+  
+  return '';
+};
+
 export const getLogoutUrl = (): string => {
   const logoutEndpoint = KEYCLOAK_CONFIG.issuerURL + '/protocol/openid-connect/logout';
+  const postLogoutURI = getPostLogoutRedirectURI();
+  
+  // Log for debugging
+  if (import.meta.env.DEV) {
+    console.log('🔐 Post-logout redirect URI:', postLogoutURI);
+  }
+  
   const params = new URLSearchParams({
     client_id: KEYCLOAK_CONFIG.clientID,
-    post_logout_redirect_uri: window.location.origin,
+    post_logout_redirect_uri: postLogoutURI,
   });
 
-  return `${logoutEndpoint}?${params.toString()}`;
+  const logoutUrl = `${logoutEndpoint}?${params.toString()}`;
+  
+  if (import.meta.env.DEV) {
+    console.log('🔐 Complete logout URL:', logoutUrl);
+  }
+  
+  return logoutUrl;
 };
 
 export const exchangeCodeForToken = async (code: string): Promise<{ access_token: string; refresh_token?: string; expires_in?: number }> => {
