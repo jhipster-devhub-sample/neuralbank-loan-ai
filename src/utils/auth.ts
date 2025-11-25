@@ -34,15 +34,17 @@ export const getKeycloakCookie = (cookieName: string): string | null => {
 export const getAuthHeaders = (): HeadersInit => {
   const jwt = getJwtFromCookie();
   
+  // For GET requests, Content-Type is not needed and some servers reject it
+  // Only include Authorization header if JWT exists
   if (jwt) {
     return {
       'Authorization': `Bearer ${jwt}`,
-      'Content-Type': 'application/json',
+      'Accept': 'application/json',
     };
   }
   
   return {
-    'Content-Type': 'application/json',
+    'Accept': 'application/json',
   };
 };
 

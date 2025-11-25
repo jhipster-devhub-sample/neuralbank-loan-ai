@@ -1,3 +1,6 @@
+# Optimized Dockerfile for OpenShift with ConfigMap
+# Use this if you're mounting config.js from ConfigMap (no ENTRYPOINT needed)
+
 FROM registry.redhat.io/ubi9/nodejs-20 AS builder
 WORKDIR /app
 USER root
@@ -17,9 +20,6 @@ FROM registry.redhat.io/ubi9/httpd-24
 # Copy built application
 COPY --from=builder /app/dist /var/www/html
 
-# Copy entrypoint script (optional - only needed if not using ConfigMap)
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-
 # Configure httpd for SPA
 RUN echo -e " \
     <Directory /var/www/html>\n \
@@ -38,16 +38,13 @@ RUN if [ -f /etc/httpd/conf.d/ssl.conf ]; then \
 # Set permissions for OpenShift (works with arbitrary user IDs)
 # OpenShift runs containers with random UIDs, so we use group permissions
 USER root
-RUN chgrp -R 0 /var/www/html /var/run/httpd /usr/local/bin/docker-entrypoint.sh && \
+RUN chgrp -R 0 /var/www/html /var/run/httpd && \
     chmod -R g+rwX /var/www/html /var/run/httpd && \
-    chmod +x /usr/local/bin/docker-entrypoint.sh && \
     find /var/www/html -type d -exec chmod g+s {} +
 
 # Switch to non-root user (OpenShift will override this with arbitrary UID)
 USER 1001
 
-# Note: If using ConfigMap for config.js, you can remove ENTRYPOINT
-# and just use: CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
-# The entrypoint is only needed if generating config.js from env vars
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+# No ENTRYPOINT needed when using ConfigMap - httpd starts directly
 CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+

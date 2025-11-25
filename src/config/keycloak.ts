@@ -1,6 +1,8 @@
+import { getEnvVar } from '@/utils/env';
+
 // Función para obtener el redirectURI, usando el origin actual si no está configurado
 export const getRedirectURI = (): string => {
-  const envRedirectURI = import.meta.env.VITE_KEYCLOAK_REDIRECT_URI;
+  const envRedirectURI = getEnvVar('VITE_KEYCLOAK_REDIRECT_URI');
   if (envRedirectURI && envRedirectURI.trim() !== '') {
     // Asegurarse de que no tenga espacios en blanco
     return envRedirectURI.trim();
@@ -21,11 +23,11 @@ export const getRedirectURI = (): string => {
 };
 
 export const KEYCLOAK_CONFIG = {
-  issuerURL: import.meta.env.VITE_KEYCLOAK_ISSUER_URL || "",
-  clientID: import.meta.env.VITE_KEYCLOAK_CLIENT_ID || "",
-  clientSecret: import.meta.env.VITE_KEYCLOAK_CLIENT_SECRET || "",
-  authorizationEndpoint: import.meta.env.VITE_KEYCLOAK_AUTHORIZATION_ENDPOINT || "",
-  tokenEndpoint: import.meta.env.VITE_KEYCLOAK_TOKEN_ENDPOINT || "",
+  issuerURL: getEnvVar('VITE_KEYCLOAK_ISSUER_URL'),
+  clientID: getEnvVar('VITE_KEYCLOAK_CLIENT_ID'),
+  clientSecret: getEnvVar('VITE_KEYCLOAK_CLIENT_SECRET'),
+  authorizationEndpoint: getEnvVar('VITE_KEYCLOAK_AUTHORIZATION_ENDPOINT'),
+  tokenEndpoint: getEnvVar('VITE_KEYCLOAK_TOKEN_ENDPOINT'),
 };
 
 export const getAuthorizationUrl = (state?: string): string => {

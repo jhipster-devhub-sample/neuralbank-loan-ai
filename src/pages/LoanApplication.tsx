@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Customer } from "@/types/customer";
 import { CustomerDetails } from "@/components/CustomerDetails";
 import { LoanApplicationForm } from "@/components/LoanApplicationForm";
-import { API_BASE_URL } from "@/constants/api";
+import { buildApiUrl } from "@/constants/api";
 import { Button } from "@/components/ui/button";
 import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -22,8 +22,9 @@ const LoanApplication = () => {
 
       try {
         const response = await fetch(
-          `${API_BASE_URL}/api/v1/customers/identification/${identification}`,
+          buildApiUrl(`v1/customers/identification/${identification}`),
           {
+            method: 'GET',
             headers: getAuthHeaders(),
           }
         );

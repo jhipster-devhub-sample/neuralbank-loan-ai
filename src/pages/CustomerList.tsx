@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Customer } from "@/types/customer";
 import { CustomerCard } from "@/components/CustomerCard";
-import { API_BASE_URL } from "@/constants/api";
+import { buildApiUrl } from "@/constants/api";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -43,9 +43,13 @@ const CustomerList = () => {
       setIsLoading(true);
       setIsUnauthorized(false);
       try {
-        const response = await fetch(`${API_BASE_URL}/api/v1/customers?page=${currentPage}&size=20`, {
-          headers: getAuthHeaders(),
-        });
+        const response = await fetch(
+          buildApiUrl(`v1/customers?page=${currentPage}&size=20`),
+          {
+            method: 'GET',
+            headers: getAuthHeaders(),
+          }
+        );
         
         if (response.status === 401 || response.status === 403) {
           setIsUnauthorized(true);

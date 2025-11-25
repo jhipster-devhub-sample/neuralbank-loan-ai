@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neuralbank-app
+  namespace: default  # Change to your namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: neuralbank
+  template:
+    metadata:
+      labels:
+        app: neuralbank
+    spec:
+      containers:
+      - name: neuralbank
+        image: your-registry/neuralbank:latest
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: config
+          mountPath: /var/www/html/config.js
+          subPath: config.js
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: neuralbank-config
+
