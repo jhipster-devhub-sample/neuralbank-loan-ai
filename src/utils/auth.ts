@@ -6,6 +6,17 @@ export const getJwtFromCookie = (): string | null => {
     return jwtCookie.split('=')[1];
   }
   
+  // Fallback: verificar cookies de Keycloak como indicador de sesión activa
+  // Nota: Las cookies de Keycloak (KEYCLOAK_IDENTITY, KEYCLOAK_SESSION) no contienen
+  // el access token directamente, pero su presencia indica que hay una sesión activa.
+  // isAuthenticated() verificará estas cookies para determinar el estado de autenticación.
+  // Aquí retornamos null porque no podemos usar estas cookies como token de API.
+  const keycloakIdentity = getKeycloakCookie('KEYCLOAK_IDENTITY');
+  const keycloakSession = getKeycloakCookie('KEYCLOAK_SESSION');
+  
+  // Si hay cookies de Keycloak pero no cookie jwt, la sesión existe pero no tenemos el token
+  // Esto puede ocurrir si el usuario está autenticado en Keycloak pero aún no ha completado
+  // el intercambio del código por token. En este caso, retornamos null.
   return null;
 };
 
