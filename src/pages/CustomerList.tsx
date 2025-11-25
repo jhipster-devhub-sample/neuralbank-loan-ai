@@ -6,7 +6,7 @@ import { API_BASE_URL } from "@/constants/api";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { getAuthHeaders, getUserDisplayName } from "@/utils/auth";
+import { getAuthHeaders, getUserDisplayName, isAuthenticated, logout } from "@/utils/auth";
 import { getAuthorizationUrl } from "@/config/keycloak";
 import {
   Pagination,
@@ -33,6 +33,13 @@ const CustomerList = () => {
 
   useEffect(() => {
     const fetchCustomers = async () => {
+      // Verificar autenticación antes de hacer la petición
+      if (!isAuthenticated()) {
+        setIsUnauthorized(true);
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       setIsUnauthorized(false);
       try {
@@ -40,14 +47,24 @@ const CustomerList = () => {
           headers: getAuthHeaders(),
         });
         
-        if (response.status === 401) {
+        if (response.status === 401 || response.status === 403) {
           setIsUnauthorized(true);
           setError(null);
           return;
         }
         
         if (!response.ok) {
-          throw new Error("Failed to fetch customers");
+          const errorText = await response.text();
+          let errorMessage = `Failed to fetch customers (${response.status})`;
+          try {
+            const errorJson = JSON.parse(errorText);
+            errorMessage = errorJson.message || errorJson.error || errorMessage;
+          } catch {
+            if (errorText) {
+              errorMessage += `: ${errorText}`;
+            }
+          }
+          throw new Error(errorMessage);
         }
         const data = await response.json();
         setCustomers(data.content || data);
@@ -55,6 +72,10 @@ const CustomerList = () => {
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
+        // Si es un error de red o de autenticación, marcar como no autorizado
+        if (err instanceof TypeError || (err instanceof Error && err.message.includes('401'))) {
+          setIsUnauthorized(true);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -84,19 +105,26 @@ const CustomerList = () => {
             </h1>
           </div>
           <p className="text-muted-foreground text-lg">Financial Risk Evaluation AI Application Demo</p>
-          {userName && (
-            <p className="text-sm text-muted-foreground mt-2">
-              Usuario: <span className="font-semibold text-foreground">{userName}</span>
-            </p>
-          )}
+          <div className="flex items-center justify-between mt-2">
+            {userName && (
+              <p className="text-sm text-muted-foreground">
+                User: <span className="font-semibold text-foreground">{userName}</span>
+              </p>
+            )}
+            {isAuthenticated() && (
+              <Button onClick={logout} variant="outline" size="sm">
+                Logout
+              </Button>
+            )}
+          </div>
         </div>
 
         {isUnauthorized ? (
           <div className="bg-card rounded-xl shadow-lg p-8 border border-border text-center">
-            <h2 className="text-2xl font-bold text-card-foreground mb-4">Acceso no autorizado</h2>
-            <p className="text-muted-foreground mb-6">Debes iniciar sesión para ver el listado de clientes</p>
+            <h2 className="text-2xl font-bold text-card-foreground mb-4">Unauthorized Access</h2>
+            <p className="text-muted-foreground mb-6">You must log in to view the customer list</p>
             <Button onClick={handleLogin} size="lg">
-              Ingresar
+              Login
             </Button>
           </div>
         ) : (

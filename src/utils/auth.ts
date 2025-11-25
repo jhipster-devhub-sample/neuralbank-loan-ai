@@ -114,7 +114,7 @@ export const getUserInfo = (): { name?: string; given_name?: string; family_name
 export const getUserDisplayName = (): string => {
   const userInfo = getUserInfo();
   if (!userInfo) {
-    return 'Usuario';
+    return 'User';
   }
   
   // Intentar usar name completo
@@ -136,7 +136,7 @@ export const getUserDisplayName = (): string => {
     return userInfo.email.split('@')[0];
   }
   
-  return 'Usuario';
+  return 'User';
 };
 
 export const logout = (): void => {

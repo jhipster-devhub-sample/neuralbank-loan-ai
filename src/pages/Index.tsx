@@ -47,22 +47,22 @@ const Index = () => {
             {userName && (
               <div className="mb-4">
                 <p className="text-lg font-semibold text-foreground">
-                  Bienvenido, {userName}
+                  Welcome, {userName}
                 </p>
               </div>
             )}
             <Button onClick={handleViewCustomers} size="lg" className="text-lg px-8">
-              Ver Clientes
+              View Customers
             </Button>
             <div>
               <Button onClick={handleLogout} variant="outline" size="lg" className="text-lg px-8">
-                Cerrar Sesión
+                Logout
               </Button>
             </div>
           </div>
         ) : (
           <Button onClick={handleLogin} size="lg" className="text-lg px-8">
-            Ingresar
+            Login
           </Button>
         )}
       </div>
