@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { isAuthenticated, logout } from '@/utils/auth';
+import { getAuthorizationUrl } from '@/config/keycloak';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -12,7 +13,8 @@ const Index = () => {
   }, []);
 
   const handleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/callback`;
+    // Redirigir directamente a Keycloak para autenticación
+    window.location.href = getAuthorizationUrl();
   };
 
   const handleLogout = () => {

@@ -62,7 +62,14 @@ const CustomerList = () => {
   };
 
   const handleLogin = () => {
-    window.location.href = `${API_BASE_URL}/auth/callback`;
+    const authUrl = 'https://rhbk.apps.cluster-lv5jx.lv5jx.sandbox2484.opentlc.com/realms/neuralbank/protocol/openid-connect/auth';
+    const params = new URLSearchParams({
+      client_id: 'neuralbank',
+      redirect_uri: 'https://neuralbank.apps.cluster-lv5jx.lv5jx.sandbox2484.opentlc.com/auth/callback',
+      response_type: 'code',
+      scope: 'openid profile email',
+    });
+    window.location.href = `${authUrl}?${params.toString()}`;
   };
 
   return (

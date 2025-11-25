@@ -29,6 +29,15 @@ export const isAuthenticated = (): boolean => {
 };
 
 export const logout = (): void => {
+  // Limpiar la cookie JWT
   document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-  window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/logout`;
+  
+  // Redirigir al logout de Keycloak
+  const logoutEndpoint = 'https://rhbk.apps.cluster-lv5jx.lv5jx.sandbox2484.opentlc.com/realms/neuralbank/protocol/openid-connect/logout';
+  const params = new URLSearchParams({
+    client_id: 'neuralbank',
+    post_logout_redirect_uri: window.location.origin,
+  });
+  
+  window.location.href = `${logoutEndpoint}?${params.toString()}`;
 };
