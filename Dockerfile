@@ -1,4 +1,3 @@
-# --- ETAPA 1: BUILD ---
 FROM registry.redhat.io/ubi9/nodejs-20 AS builder
 WORKDIR /app
 USER root
@@ -9,13 +8,9 @@ COPY . .
 RUN npm ci
 RUN npm run build
 
-# --- ETAPA 2: SERVE (con Red Hat Apache/httpd) ---
 FROM registry.redhat.io/ubi9/httpd-24
 
-# --- INICIO: CORRECCIÓN DE SINTAXIS ---
-# Era --from=builder, no --from-builder
 COPY --from=builder /app/dist /var/www/html
-# --- FIN: CORRECCIÓN DE SINTAXIS ---
 
 RUN echo -e " \
     <Directory /var/www/html>\n \
