@@ -6,7 +6,8 @@ import { API_BASE_URL } from "@/constants/api";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { getAuthHeaders } from "@/utils/auth";
+import { getAuthHeaders, getUserDisplayName } from "@/utils/auth";
+import { getAuthorizationUrl } from "@/config/keycloak";
 import {
   Pagination,
   PaginationContent,
@@ -23,7 +24,12 @@ const CustomerList = () => {
   const [isUnauthorized, setIsUnauthorized] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [userName, setUserName] = useState<string>('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setUserName(getUserDisplayName());
+  }, []);
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -62,14 +68,7 @@ const CustomerList = () => {
   };
 
   const handleLogin = () => {
-    const authUrl = 'https://rhbk.apps.cluster-lv5jx.lv5jx.sandbox2484.opentlc.com/realms/neuralbank/protocol/openid-connect/auth';
-    const params = new URLSearchParams({
-      client_id: 'neuralbank',
-      redirect_uri: 'https://neuralbank.apps.cluster-lv5jx.lv5jx.sandbox2484.opentlc.com/auth/callback',
-      response_type: 'code',
-      scope: 'openid profile email',
-    });
-    window.location.href = `${authUrl}?${params.toString()}`;
+    window.location.href = getAuthorizationUrl();
   };
 
   return (
@@ -85,6 +84,11 @@ const CustomerList = () => {
             </h1>
           </div>
           <p className="text-muted-foreground text-lg">Financial Risk Evaluation AI Application Demo</p>
+          {userName && (
+            <p className="text-sm text-muted-foreground mt-2">
+              Usuario: <span className="font-semibold text-foreground">{userName}</span>
+            </p>
+          )}
         </div>
 
         {isUnauthorized ? (

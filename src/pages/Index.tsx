@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { isAuthenticated, logout } from '@/utils/auth';
+import { isAuthenticated, logout, getUserDisplayName } from '@/utils/auth';
 import { getAuthorizationUrl } from '@/config/keycloak';
 
 const Index = () => {
   const navigate = useNavigate();
   const [authenticated, setAuthenticated] = useState(false);
+  const [userName, setUserName] = useState<string>('');
 
   useEffect(() => {
     setAuthenticated(isAuthenticated());
+    if (isAuthenticated()) {
+      setUserName(getUserDisplayName());
+    }
   }, []);
 
   const handleLogin = () => {
@@ -40,6 +44,13 @@ const Index = () => {
         
         {authenticated ? (
           <div className="space-y-4">
+            {userName && (
+              <div className="mb-4">
+                <p className="text-lg font-semibold text-foreground">
+                  Bienvenido, {userName}
+                </p>
+              </div>
+            )}
             <Button onClick={handleViewCustomers} size="lg" className="text-lg px-8">
               Ver Clientes
             </Button>
