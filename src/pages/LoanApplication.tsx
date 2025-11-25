@@ -49,7 +49,7 @@ const LoanApplication = () => {
         <div className="mb-6">
           <Button
             variant="outline"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/customers")}
             className="mb-4"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
