@@ -5,6 +5,8 @@ import { CustomerCard } from "@/components/CustomerCard";
 import { API_BASE_URL } from "@/constants/api";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { getAuthHeaders } from "@/utils/auth";
 import {
   Pagination,
   PaginationContent,
@@ -18,6 +20,7 @@ const CustomerList = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const navigate = useNavigate();
@@ -25,8 +28,18 @@ const CustomerList = () => {
   useEffect(() => {
     const fetchCustomers = async () => {
       setIsLoading(true);
+      setIsUnauthorized(false);
       try {
-        const response = await fetch(`${API_BASE_URL}/api/v1/customers?page=${currentPage}&size=20`);
+        const response = await fetch(`${API_BASE_URL}/api/v1/customers?page=${currentPage}&size=20`, {
+          headers: getAuthHeaders(),
+        });
+        
+        if (response.status === 401) {
+          setIsUnauthorized(true);
+          setError(null);
+          return;
+        }
+        
         if (!response.ok) {
           throw new Error("Failed to fetch customers");
         }
@@ -48,6 +61,10 @@ const CustomerList = () => {
     navigate(`/customer/${identification}`);
   };
 
+  const handleLogin = () => {
+    window.location.href = '/auth/callback';
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -63,10 +80,19 @@ const CustomerList = () => {
           <p className="text-muted-foreground text-lg">Financial Risk Evaluation AI Application Demo</p>
         </div>
 
-        <div className="bg-card rounded-xl shadow-lg p-8 border border-border">
-          <h2 className="text-3xl font-bold text-card-foreground mb-6">Customer List</h2>
+        {isUnauthorized ? (
+          <div className="bg-card rounded-xl shadow-lg p-8 border border-border text-center">
+            <h2 className="text-2xl font-bold text-card-foreground mb-4">Acceso no autorizado</h2>
+            <p className="text-muted-foreground mb-6">Debes iniciar sesión para ver el listado de clientes</p>
+            <Button onClick={handleLogin} size="lg">
+              Ingresar
+            </Button>
+          </div>
+        ) : (
+          <div className="bg-card rounded-xl shadow-lg p-8 border border-border">
+            <h2 className="text-3xl font-bold text-card-foreground mb-6">Customer List</h2>
 
-          {isLoading && (
+            {isLoading && (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <span className="ml-3 text-muted-foreground">Loading customers...</span>
@@ -146,7 +172,8 @@ const CustomerList = () => {
               )}
             </>
           )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
